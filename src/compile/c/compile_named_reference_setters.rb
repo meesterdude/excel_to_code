@@ -6,9 +6,9 @@ class MapNamedReferenceToCSetter
   def initialize
     reset
   end
-
+  # changed from newValue to lam -rj
   def reset
-    @new_value_name = "newValue"
+    @new_value_name = "lam"
   end
 
   def map(ast)
@@ -47,7 +47,7 @@ class MapNamedReferenceToCSetter
       end
     end.flatten.join("\n")
     
-    @new_value_name = "newValue"
+    @new_value_name = "lam"
     array_code(result)
   end
 
@@ -76,6 +76,7 @@ class MapNamedReferenceToRubySetter < MapNamedReferenceToCSetter
   def not_settable_code(s,c)
     "    # @#{s}_#{c} not settable"
   end
+
 
   def settable_code(s,c)
     "    @#{s}_#{c} = #{@new_value_name}"
