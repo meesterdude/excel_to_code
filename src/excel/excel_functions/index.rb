@@ -1,7 +1,8 @@
 module ExcelFunctions
   
   def index(array, row_number, column_number = :not_specified)
-    
+    row_number = row_number.to_i
+
     return array if array.is_a?(Symbol)
     return row_number if row_number.is_a?(Symbol)
     return column_number if column_number.is_a?(Symbol) && column_number != :not_specified
@@ -31,7 +32,7 @@ module ExcelFunctions
     return :ref if row_number < 1 || row_number > array.length
     row = array[row_number-1]
     return :ref if column_number < 1 || column_number > row.length
-    row[column_number-1] || 0
+    row[column_number-1] # || 0 rj disabled this, this breaks returning index of empty cells
   end
   
   def index_for_whole_row(array,row_number)
