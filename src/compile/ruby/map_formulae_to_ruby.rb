@@ -139,6 +139,7 @@ class MapFormulaeToRuby < MapValuesToRuby
   end
 
   def function(function_name,*arguments)
+    function_name = function_name.upcase
     if FUNCTIONS.has_key?(function_name)
       previous_thing_to_do_with_inline_blanks = @leave_inline_blank_as_nil
       @leave_inline_blank_as_nil = FUNCTIONS_THAT_CARE_ABOUT_BLANKS[function_name]
@@ -146,7 +147,13 @@ class MapFormulaeToRuby < MapValuesToRuby
       @leave_inline_blank_as_nil = previous_thing_to_do_with_inline_blanks
       result
     else
-      raise NotSupportedException.new("Function #{function_name} not supported")
+      previous_thing_to_do_with_inline_blanks = @leave_inline_blank_as_nil
+      @leave_inline_blank_as_nil = FUNCTIONS_THAT_CARE_ABOUT_BLANKS[function_name]
+      result = "#{function_name}(#{arguments.map { |a| map(a) }.join(",")})"
+      @leave_inline_blank_as_nil = previous_thing_to_do_with_inline_blanks
+      result
+      # disabled this to allow undefined functions to pass through
+      #raise NotSupportedException.new("Function #{function_name} not supported")
     end
   end
 
