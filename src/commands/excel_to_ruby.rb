@@ -25,8 +25,8 @@ class ExcelToRuby < ExcelToX
 
     o.puts "# coding: utf-8"
     o.puts "# Compiled version of #{excel_file}"
-    # FIXME: Should include the ruby files as part of the output, so don't have any dependencies
     o.puts "require '#{File.expand_path(File.join(File.dirname(__FILE__),'../excel/excel_functions'))}'"
+    o.puts "require 'execjs'" if @named_references_to_keep.include?(:functions)
     o.puts ""
     o.puts "class #{ruby_module_name}"
     o.puts "  include ExcelFunctions"
@@ -58,10 +58,13 @@ class ExcelToRuby < ExcelToX
     @named_references_that_can_be_set_at_runtime.each do |ref|
       c_name = c_name_for(ref)
       ast = @named_references[ref] || @table_areas[ref]
+      o.puts ""
       o.puts "  def #{c_name}=(newValue)"
-      o.puts "    @#{c_name} = newValue"
+      o.puts "    lam = newValue.is_a?(Proc) ? newValue : lambda {newValue} "
+#      o.puts "    @#{c_name} = lam || newValue "
       o.puts m.map(ast)
       o.puts "  end"
+      o.puts ""
     end
     o.puts "# End of named references"
 
@@ -73,8 +76,17 @@ class ExcelToRuby < ExcelToX
     d.each do |line|
       o.puts line
     end
+    o.puts '  @js        = ExecJS.compile(functions.compact.join("\n"))' if @named_references_to_keep.include?(:functions)
+    o.puts "    # post_initialize "
     o.puts "  end"
     o.puts ""
+    # rj adding support for JS function injection if functions is specified
+    if @named_references_to_keep.include?(:functions)
+      o.puts '  def method_missing(m, *args, &block)'
+      o.puts '    puts "Delegating #{m} to JS"'
+      o.puts '    @js.call(m.to_s, *args)'
+      o.puts '  end'
+    end
     log.info "Finished writing initializer"
               
 
@@ -82,7 +94,7 @@ class ExcelToRuby < ExcelToX
     close(o)
     log.info "Finished writing code"
   end
-
+#
   def write_out_test_as_code
     o = output("test_#{output_name.downcase}.rb")
     
