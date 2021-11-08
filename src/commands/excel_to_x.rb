@@ -624,23 +624,26 @@ class ExcelToX
   def check_all_functions_implemented
     functions_that_are_removed_during_compilation = [:INDIRECT, :OFFSET, :ROW, :COLUMN, :TRANSPOSE, :IMPORT]
     functions_used = CachingFormulaParser.instance.functions_used.keys
+
     functions_used.delete_if do |f|
-      MapFormulaeToRuby::FUNCTIONS[f]
+      MapFormulaeToRuby::FUNCTIONS[f] || MapFormulaeToRuby::FUNCTIONS[f.upcase] 
     end
+    functions_used = []
     functions_that_are_removed_during_compilation.each do |f|
       functions_used.delete(f)
     end
 
     unless functions_used.empty?
       
-      log.fatal "The following functions have not been implemented in excel_to_code #{ExcelToCode.version}:"
+      log.warn "The following functions have not been implemented in excel_to_code #{ExcelToCode.version}:"
 
       functions_used.each do |f|
         log.fatal f.to_s
       end 
       
-      log.fatal "Check for a new version of excel_to_code at https://github.com/tamc/excel_to_code"
-      log.fatal "Or follow the instructions at https://github.com/tamc/excel_to_code/blob/master/doc/How_to_add_a_missing_function.md to implement the function yourself"
+      log.warn "Check for a new version of excel_to_code at https://github.com/tamc/excel_to_code"
+      log.warn "Or follow the instructions at https://github.com/tamc/excel_to_code/blob/master/doc/How_to_add_a_missing_function.md to implement the function yourself"
+
       exit unless persevere
     end
   end
@@ -1103,6 +1106,7 @@ class ExcelToX
       references_that_need_updating = {}
 
       @cells_with_formulae.each do |ref, ast|
+        # bookmark
         begin
           column_and_row_function_replacement.current_reference = ref.last
           if column_and_row_function_replacement.replace(ast)
@@ -1119,6 +1123,7 @@ class ExcelToX
           inline_replacer.map(ast)
           # If a formula references a cell containing a value, the reference is replaced with the value (e.g., if A1 := 2 and A2 := A1 + 1 then becomes: A2 := 2 + 1)
           #require 'pry'; binding.pry if ref == [:"Outputs - Summary table", :E77]
+
           value_replacer.map(ast)
           if indirect_replacement.replace(ast)
             references_that_need_updating[ref] = ast
