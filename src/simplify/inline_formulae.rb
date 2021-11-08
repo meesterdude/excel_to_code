@@ -26,6 +26,7 @@ class InlineFormulaeAst
   end
   
   def map(ast)
+
     return ast unless ast.is_a?(Array)
     case ast[0]
     when :function

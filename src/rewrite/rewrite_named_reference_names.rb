@@ -13,6 +13,7 @@ class RewriteNamedReferenceNames
   # existing names 
   # FIXME: but could still clash with function names and methods in the ruby shim
   def rewrite(named_references, worksheet_names, output)
+    
     worksheet_names = Hash[worksheet_names.readlines.map { |line| line.strip.split("\t")}]
     c_names_assigned = worksheet_names.invert
 

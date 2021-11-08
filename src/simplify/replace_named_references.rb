@@ -7,7 +7,8 @@ class NamedReferences
     @table_data = tables
     @deepCopyCache = {}
   end
-  
+
+  # bookmark
   def reference_for(sheet,named_reference)
     sheet = sheet.downcase
     named_reference = named_reference.downcase.to_sym
@@ -61,8 +62,17 @@ class ReplaceNamedReferencesAst
   end
   
   # Format [:named_reference, name]
+  # bookmark
+  # rj: had to modify this as it was not picking up bools, and was converting them 
+  # into [:error, :"#NAME?"] in reference_for above
   def named_reference(ast)
-    ast.replace(named_references.reference_for(default_sheet_name, ast[1]))
+    if ast[1] == "true"
+      ast.replace([:boolean_true])
+    elsif ast[1] == "false"
+      ast.replace([:boolean_false])
+    else
+      ast.replace(named_references.reference_for(default_sheet_name, ast[1]))
+    end
   end
   
 end

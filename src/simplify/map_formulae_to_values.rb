@@ -36,7 +36,7 @@ class MapFormulaeToValues
       next if DO_NOT_MAP[(a[0])]
       map(a)
     end # Depth first best in this case?
-    send(ast[0], ast) if respond_to?(ast[0])
+    #send(ast[0], ast) if respond_to?(ast[0])
     ast
   end
 
@@ -127,12 +127,14 @@ class MapFormulaeToValues
   
   # [:function, function_name, arg1, arg2, ...]
   def function(ast)
+
     name = ast[1]
     return if name == :INDIRECT
     return if name == :OFFSET
     return if name == :COLUMN
     return if name == :ROW
     return if name == :IMPORT
+
     if respond_to?("map_#{name.to_s.downcase}")
       send("map_#{name.to_s.downcase}",ast)
     else
@@ -196,6 +198,7 @@ class MapFormulaeToValues
   def map_isblank(ast)
     normal_function(ast,nil)
   end
+
 
   def map_vlookup(ast)
     normal_function(ast,nil)
@@ -434,7 +437,8 @@ class MapFormulaeToValues
     :"#N/A" => :na,
     :"#NUM!" => :num
   }
-    
+  
+
   def value(ast, inlined_blank = 0)
     return extract_values_from_array(ast, inlined_blank) if ast.first == :array
     case ast.first

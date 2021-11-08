@@ -10,7 +10,7 @@ module ExcelFunctions
       begin
         return Float(a)
       rescue ArgumentError
-        return :value
+        return 0
       end
     when nil
       return 0
@@ -23,7 +23,9 @@ module ExcelFunctions
     when Array
       return number_argument(a[0][0])
     else
-      return :value
+      # rj seems like it should not be returning a symbol
+      #return :value
+      return a
     end
   end
   

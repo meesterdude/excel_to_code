@@ -6,6 +6,7 @@ class RewriteSharedFormulae
   end
   
   def rewrite(formula_shared, formula_shared_targets)
+    
     @output = {}
     @formula_shared_targets = formula_shared_targets
 

@@ -12,6 +12,7 @@ class RewriteValuesToAst
   # output will be in the form 'thing\tthing\tast\n'
   # FIXME: Removes newlines and other unprintables from str types. Should actually process them.
   def rewrite(input,output)
+    
     input.each_line do |line|
       line =~ /^(.*?)\t(.*?)\t(.*)\n/
       ref, type, value = $1, $2, $3

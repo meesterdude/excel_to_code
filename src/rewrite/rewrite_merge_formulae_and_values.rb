@@ -6,6 +6,7 @@ class RewriteMergeFormulaeAndValues
   attr_accessor :references_to_add_if_they_are_not_already_present
   
   def rewrite(values,shared_formulae,array_formula,simple_formulae,output)
+    
     @references_to_add_if_they_are_not_already_present ||= []
     
     shared_formulae = Hash[shared_formulae.readlines.map { |line| [line[/(.*?)\t/,1],line]}]
